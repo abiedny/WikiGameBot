@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import asyncio
 from threading import Thread
-import multiprocessing
+import multiprocessing.dummy
 
 #Creating a page object inherently checks for the final URL
 class Page:
@@ -34,9 +34,12 @@ class Page:
     #switches the array of link strings to an array of page objects
     def buildNext(self):
         #Make a process pool to do this map quickly
-        p = multiprocessing.Pool(20)
-        self.links = p.map(lambda x: Page(x, self.endURL, self.path+"->"+x), self.links)
+        p = multiprocessing.dummy.Pool(5)
+        self.links = p.map(self.__toPage, self.links)
         return True
+
+    def __toPage(self, link):
+        return Page(link, self.endURL, self.path+"->"+link)
 
 #the collection of pages, the tree
 class Tree:
